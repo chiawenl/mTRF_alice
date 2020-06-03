@@ -1,7 +1,7 @@
 # mTRF_alice
 
 ## Goal 
-<li> Apply mTRF to Alice data 
+<li> Apply mTRF to Alice data (33 subjects)
 
 ## Scripts versions
 ### do_alice_mtrf.m (version: 2020/05/31)
@@ -22,3 +22,7 @@ end</code></pre>
 
 ### mtrf_plot_jrb.m (version: 2020/05/31)
 Plot results for Log frequency, Intensity, and Close brackets
+
+### Files 
+<li>Models based on do_alice_mrtf.m(2020/05/31)</li>
+<a href="https://umich.box.com/s/tbxxkr33rnx7hxifh4zrlagwuq2t3r0f" > Models in Mbox</a>
