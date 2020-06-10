@@ -25,8 +25,8 @@ Plot results for Log frequency, Intensity, and Close brackets
 
 ## Files 
 <li>Models based on do_alice_mrtf.m(2020/05/31)</li>
-<a href="https://umich.box.com/s/tbxxkr33rnx7hxifh4zrlagwuq2t3r0f" > Models in Mbox</a>
-<a href="https://umich.box.com/s/tw206e6kid6pj6og5vgsrkhdroihvlmb" > Predictors</a>
+<li> <a href="https://umich.box.com/s/tbxxkr33rnx7hxifh4zrlagwuq2t3r0f" > Models in Mbox</a> </li>
+<li> <a href="https://umich.box.com/s/tw206e6kid6pj6og5vgsrkhdroihvlmb" > Predictors</a> </li>
 
 ## Model results
 <a href="https://docs.google.com/document/d/19UscK-aBd9DBrC2d08MNdrNf46zX557kOHEIKHxp_uQ/edit?usp=sharing" > Plots</a>
