@@ -4,6 +4,20 @@
 <li> Apply mTRF to Alice data (33 subjects)
 
 ## Scripts versions
+
+### do_alice_mtrf.m (version: 2020/06/15)
+<li> Major changes: </li>
+<li> interpolation </li>
+<pre><code>new_values  = interp1(time, value, new_times, 'previous', 0);</code></pre>
+<li> transform variables (LogFreq and Closebrackets) based on WordOnset100ms and LexFunc </li>
+<pre><code>% test -- transform variables based on "just_content" parameter
+for i_cnt = 1:length(just_content)
+   I_lex = find(strcmp('LexFunc', stim_raw.label));
+   I_onset = find(strcmp('WordOnset100ms', stim_raw.label));
+   I     = find(strcmp(just_content(i_cnt), stim_raw.label));
+   stim_raw.trial{1}(I,:) = stim_raw.trial{1}(I,:) .* stim_raw.trial{1}(I_lex,:).*stim_raw.trial{1}(I_onset,:);
+end</code></pre>
+
 ### do_alice_mtrf.m (version: 2020/05/31)
 <li> Major changes: </li>
 <li> Low-pass filter: 12 Hz </li>
