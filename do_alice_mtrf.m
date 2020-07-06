@@ -17,7 +17,7 @@ function [M,t] = do_alice_mtrf(dataset)
 % - Decide what to do with stim/predictor GAPS: 0? NaN? other interpolation?
 
 %% GitHub versions
-% Updated: 2020/06/15
+% Updated: 2020/07/06
 
 %% Set Parameters
 
@@ -29,9 +29,9 @@ function [M,t] = do_alice_mtrf(dataset)
 % just_content: predictors to zero out for non-lexical words
 
 
-use_predictors = {'Intensity', 'Pitch', 'F1', 'sentence', 'position', 'LexFunc', 'LogFrqHAL', 'CloseBrackets3', 'WordOnset100ms'};
+use_predictors = {'Intensity', 'Pitch', 'F1', 'sentence', 'position', 'LexFunc', 'LogFrqHAL_bins', 'CloseBrackets3', 'WordOnset100ms'};
 
-just_content   = {'LogFrqHAL', 'CloseBrackets3'};
+just_content   = {'LogFrqHAL_bins', 'CloseBrackets3'};
 
 %stim_loc     = '../ana14-mtrf/stim/seg';
 %predict_loc  = '../ana11-andrea-composition/alice_word_length_brackets_Nikki.xlsx';
@@ -59,6 +59,7 @@ cfg.hpinstabilityfix                    = 'split';
 cfg.hpfilter                            = 'yes';
 cfg.dftfilter                           = 'yes';
 cfg.dftfreq                             = [60 120 180];
+%cfg.demean                              = 'yes';
     dat_raw = ft_preprocessing(cfg);
 
 %% Define 10 sec trials
@@ -195,7 +196,7 @@ for i_prd = 1:length(stim_raw.label) % for each predictor
 
         % interpolate to sampling rate of the data
         new_times   = 0:(1/Fs):tmax; % MAKE SURE NO NANs!
-        %new_values  = interp1(time, value, new_times, 'nearest', 0);
+        %new_values_n  = interp1(time, value, new_times, 'nearest', 0);
         % interp1 for word onset/logfreq should be previous
         new_values  = interp1(time, value, new_times, 'previous', 0);
         
@@ -286,6 +287,8 @@ cfg = [];
 cfg.lpfilter    = 'yes';
 %cfg.lpfreq      = 40;
 cfg.lpfreq      = 12;
+% cfg.demean      = 'yes';
+% cfg.baselinewindow  = [-0.3 0];
 dat_evokd = ft_preprocessing(cfg, dat_cln);
 %dat_evokd = ft_preprocessing(cfg, dat_raw_ica);
 
@@ -294,6 +297,8 @@ cfg = [];
 cfg.bpfilter  = 'yes';
 cfg.bpfreq    = [1 4];
 cfg.hilbert   = 'abs';
+% cfg.demean    = 'yes';
+% cfg.baselinewindow  = [-0.3 0];
 dat_delta = ft_preprocessing(cfg,dat_cln);
 
 %% Theta 5-8
@@ -301,6 +306,8 @@ cfg = [];
 cfg.bpfilter  = 'yes';
 cfg.bpfreq    = [4 8];
 cfg.hilbert   = 'abs';
+% cfg.demean    = 'yes';
+% cfg.baselinewindow  = [-0.3 0];
 dat_theta = ft_preprocessing(cfg,dat_cln);
 
 %% Gamma 30-50
@@ -308,6 +315,8 @@ cfg = [];
 cfg.bpfilter  = 'yes';
 cfg.bpfreq    = [30 50];
 cfg.hilbert   = 'abs';
+% cfg.demean    = 'yes';
+% cfg.baselinewindow  = [-0.3 0];
 dat_gamma = ft_preprocessing(cfg, dat_cln);
 
 
@@ -427,6 +436,14 @@ for d = 1:length(dsets)
     end
     
     M       = squeeze(nanmean(M, 1));
+    %baseline corrected
+    baseline = M(:,[1:129],:);
+    other = M(:,[130:end],:);
+    baseline_average = nanmean(M(:,1:129,:));
+    baseline_average1 = repmat(baseline_average, [9, 1, 1]);
+    M_corrected = baseline-baseline_average1; 
+    M = horzcat(M_corrected,other);
+    
     varname = ['M' dsets{d}(4:6)];
     eval([varname ' = M;']); % creates M_ev, M_de, M_th, M_ga...
 end
@@ -437,7 +454,7 @@ end
 v = stim_cln_rs.label;
 e = dat_cln_rs.label;
 t = model.t; % 2020 version script
-save(['models_20200615/'  proc.subject '_20200615.mat'], 'M_ev', 'M_de', 'M_th', 'M_ga', 't', 'v', 'e');
+save(['models_20200703/'  proc.subject '_20200703.mat'], 'M_ev', 'M_de', 'M_th', 'M_ga', 't', 'v', 'e');
 %save(['models/test.mat'], 'M_ev', 'M_de', 'M_th', 'M_ga', 't', 'v', 'c');
 %% Figure
 figure;
@@ -445,7 +462,7 @@ chan = find(strcmp('3', e));
 %plot(t, squeeze(M_ev(:,:,chan)), 'linewidth', 2); legend(v, 'fontsize', 18, 'boxoff')
 %plot(t, squeeze(M_ev(:,:,chan)), 'linewidth', 2); legend(v, 'fontsize', 18)
 y =squeeze(M_ev(:,:,chan));
-plot(t,y(9,:), 'linewidth', 2);legend(v{9}, 'fontsize', 18);
+plot(t,y(7,:), 'linewidth', 2);legend(v{7}, 'fontsize', 18);
 xlim([-1000, 2000]);
 saveas(gcf, ['figs/' proc.subject '.png']);
 %saveas(gcf, ['figs/test.png']);
