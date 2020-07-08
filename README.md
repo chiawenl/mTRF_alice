@@ -54,3 +54,4 @@ Plot results for Log frequency, Intensity, and Close brackets
 ## Model results
 <a href="https://docs.google.com/document/d/19UscK-aBd9DBrC2d08MNdrNf46zX557kOHEIKHxp_uQ/edit?usp=sharing" > Plots</a>
 <li> <a href= "https://docs.google.com/presentation/d/1ksen6Z7AjV4sGlXhzdczhrRMcbfHzUM_n95v5T1ZtuY/edit?usp=sharing"> Model results 2020/07/01</a> </li>
+<li> <a href= "https://docs.google.com/presentation/d/1AyeqNDTFWX9w-bKPvfFp32O2WdFZSkCLJI9JxGzhxi8/edit?usp=sharing"> Model results 2020/07/07</a> </li>
