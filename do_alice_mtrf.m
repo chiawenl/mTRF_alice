@@ -17,7 +17,7 @@ function [M,t] = do_alice_mtrf(dataset)
 % - Decide what to do with stim/predictor GAPS: 0? NaN? other interpolation?
 
 %% GitHub versions
-% Updated: 2020/07/06
+% Updated: 2020/07/14
 
 %% Set Parameters
 
@@ -59,7 +59,7 @@ cfg.hpinstabilityfix                    = 'split';
 cfg.hpfilter                            = 'yes';
 cfg.dftfilter                           = 'yes';
 cfg.dftfreq                             = [60 120 180];
-%cfg.demean                              = 'yes';
+
     dat_raw = ft_preprocessing(cfg);
 
 %% Define 10 sec trials
@@ -287,8 +287,6 @@ cfg = [];
 cfg.lpfilter    = 'yes';
 %cfg.lpfreq      = 40;
 cfg.lpfreq      = 12;
-% cfg.demean      = 'yes';
-% cfg.baselinewindow  = [-0.3 0];
 dat_evokd = ft_preprocessing(cfg, dat_cln);
 %dat_evokd = ft_preprocessing(cfg, dat_raw_ica);
 
@@ -297,8 +295,6 @@ cfg = [];
 cfg.bpfilter  = 'yes';
 cfg.bpfreq    = [1 4];
 cfg.hilbert   = 'abs';
-% cfg.demean    = 'yes';
-% cfg.baselinewindow  = [-0.3 0];
 dat_delta = ft_preprocessing(cfg,dat_cln);
 
 %% Theta 5-8
@@ -306,8 +302,6 @@ cfg = [];
 cfg.bpfilter  = 'yes';
 cfg.bpfreq    = [4 8];
 cfg.hilbert   = 'abs';
-% cfg.demean    = 'yes';
-% cfg.baselinewindow  = [-0.3 0];
 dat_theta = ft_preprocessing(cfg,dat_cln);
 
 %% Gamma 30-50
@@ -315,8 +309,6 @@ cfg = [];
 cfg.bpfilter  = 'yes';
 cfg.bpfreq    = [30 50];
 cfg.hilbert   = 'abs';
-% cfg.demean    = 'yes';
-% cfg.baselinewindow  = [-0.3 0];
 dat_gamma = ft_preprocessing(cfg, dat_cln);
 
 
@@ -437,12 +429,10 @@ for d = 1:length(dsets)
     
     M       = squeeze(nanmean(M, 1));
     %baseline corrected
-    baseline = M(:,[1:129],:);
-    other = M(:,[130:end],:);
-    baseline_average = nanmean(M(:,1:129,:));
-    baseline_average1 = repmat(baseline_average, [9, 1, 1]);
-    M_corrected = baseline-baseline_average1; 
-    M = horzcat(M_corrected,other);
+    baseline = M(:,[91:129],:); %[-0.3 0]
+    baseline_average = nanmean(baseline,2);
+    baseline_average1 = repmat(baseline_average, [1 385 1]);
+    M = M-baseline_average1; 
     
     varname = ['M' dsets{d}(4:6)];
     eval([varname ' = M;']); % creates M_ev, M_de, M_th, M_ga...
@@ -454,7 +444,7 @@ end
 v = stim_cln_rs.label;
 e = dat_cln_rs.label;
 t = model.t; % 2020 version script
-save(['models_20200703/'  proc.subject '_20200703.mat'], 'M_ev', 'M_de', 'M_th', 'M_ga', 't', 'v', 'e');
+save(['models_20200708/'  proc.subject '_20200708.mat'], 'M_ev', 'M_de', 'M_th', 'M_ga', 't', 'v', 'e');
 %save(['models/test.mat'], 'M_ev', 'M_de', 'M_th', 'M_ga', 't', 'v', 'c');
 %% Figure
 figure;
