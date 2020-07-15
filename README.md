@@ -4,15 +4,13 @@
 <li> Apply mTRF to Alice data (33 subjects)
 
 ## Scripts versions
-### do_alice_mtrf.m (version: 2020/07/06)
+### do_alice_mtrf.m (version: 2020/07/15)
 <li> Major changes: </li>
 <li> baseline correction </li>
-<pre><code>baseline = M(:,[1:129],:); %pre-stimulus [-1000 0]
-    other = M(:,[130:end],:); %post-stimulus [0 2000]
-    baseline_average = nanmean(M(:,1:129,:)); %1x129x61
-    baseline_average1 = repmat(baseline_average, [9, 1, 1]); %9x129x61
-    M_corrected = baseline-baseline_average1; 
-    M = horzcat(M_corrected,other);%9x385x61</code></pre> 
+<pre><code>baseline = M(:,[91:129],:); %[-0.3 0]
+baseline_average = nanmean(baseline,2);
+baseline_average1 = repmat(baseline_average, [1 385 1]);
+M = M-baseline_average1;</code></pre> 
 
 ### do_alice_mtrf.m (version: 2020/06/15)
 <li> Major changes: </li>
