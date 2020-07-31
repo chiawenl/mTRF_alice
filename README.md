@@ -1,8 +1,12 @@
 # mTRF_alice
 
 ## Goal 
-<li> Apply mTRF to Alice data (33 subjects)
+<li> Apply the multivariate temporal response function (mTRF) to Alice datasets (33 subjects)
 
+## Package
+<li> <a href= "http://www.fieldtriptoolbox.org/ "> fieldtrip toolbox  </a>for eeg data anaylsis </li>
+<li> <a href= "https://www.mathworks.com/matlabcentral/fileexchange/74260-mtrf-toolbox "> mTRF-Toolbox  </a>for building mTRF models </li>
+   
 ## Scripts versions
 ### do_alice_mtrf.m (version: 2020/07/15)
 <li> Major changes: </li>
@@ -42,14 +46,15 @@ end</code></pre>
 <pre><code>[model] = mTRFtrain(stim, resp, test_Fs, 1, -1000, 2000, lambda);</code></pre>
 
 ### mtrf_plot_jrb.m (version: 2020/05/31)
-Plot results for Log frequency, Intensity, and Close brackets
+Plot results across subjects. Each line represents each channel. 
 
 ## Files 
-<li>Models based on do_alice_mrtf.m(2020/05/31)</li>
-<a href="https://umich.box.com/s/tbxxkr33rnx7hxifh4zrlagwuq2t3r0f" > Models in Mbox</a> 
 <li> <a href="https://umich.box.com/s/tw206e6kid6pj6og5vgsrkhdroihvlmb" > Predictors</a> </li>
 
-## Model results
-<a href="https://docs.google.com/document/d/19UscK-aBd9DBrC2d08MNdrNf46zX557kOHEIKHxp_uQ/edit?usp=sharing" > Plots</a>
+## Model pilot results
+<a href="https://docs.google.com/document/d/19UscK-aBd9DBrC2d08MNdrNf46zX557kOHEIKHxp_uQ/edit?usp=sharing" > Plots (test log)</a>
 <li> <a href= "https://docs.google.com/presentation/d/1ksen6Z7AjV4sGlXhzdczhrRMcbfHzUM_n95v5T1ZtuY/edit?usp=sharing"> Model results 2020/07/01 (log frequency vs. frequnecy bins)</a> </li>
 <li> <a href= "https://docs.google.com/presentation/d/1AyeqNDTFWX9w-bKPvfFp32O2WdFZSkCLJI9JxGzhxi8/edit?usp=sharing"> Model results 2020/07/07 (baseline correction)</a> </li>
+
+## Analysis and preliminary results 
+<a href="https://docs.google.com/document/d/18uYyKKKWDdwy63MBitztqVP91SU9sQGMuj_efAxRaYE/edit?usp=sharing"> Analysis and results </a>
