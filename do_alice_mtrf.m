@@ -12,12 +12,8 @@ function [M,t] = do_alice_mtrf(dataset)
 %load(dataset, 'dat', 'proc');
 
 
-%% TODO
-% - Finish converting predictors to .txt format (in progress with f1.txt)
-% - Decide what to do with stim/predictor GAPS: 0? NaN? other interpolation?
-
 %% GitHub versions
-% Updated: 2020/07/14
+% Updated: 2020/07/30
 
 %% Set Parameters
 
@@ -28,21 +24,10 @@ function [M,t] = do_alice_mtrf(dataset)
 %
 % just_content: predictors to zero out for non-lexical words
 
-
 use_predictors = {'Intensity', 'Pitch', 'F1', 'sentence', 'position', 'LexFunc', 'LogFrqHAL_bins', 'CloseBrackets3', 'WordOnset100ms'};
-
 just_content   = {'LogFrqHAL_bins', 'CloseBrackets3'};
 
-%stim_loc     = '../ana14-mtrf/stim/seg';
-%predict_loc  = '../ana11-andrea-composition/alice_word_length_brackets_Nikki.xlsx';
-%use_lingpred = {'sentence', 'position', 'LexFunc', 'LogFrqHAL', 'mod_count', 'CloseBrackets3'};
-%use_audprped = {''};
-%new_fs       = 200;  % not used
-
 load(dataset, 'dat', 'proc');
-
-%load('proc/R0182.mat', 'dat','proc'); % good fit
-%load('with_added_trialinfo/R0225.mat', 'dat','proc'); % mTRF doesn't fit -> complex numbers
 
 %% load raw & preprocess
 channels                                = {'all', '-VEOG', '-AUD', '-Aux5', '-OPTO'};
@@ -120,8 +105,6 @@ if ~isempty(missing)
     end
     cfg.neighbours                       = neighbours;
     cfg.elecfile                         = 'easycapM10-acti61_elec.sfp';
-
-    %dat_raw_ica                           = ft_channelrepair(cfg, dat_all_ica);
     dat_cln                           = ft_channelrepair(cfg, dat_cln);
 end
 
@@ -149,6 +132,7 @@ stim_raw.label    = use_predictors'; % as column vector
 stim_raw.trial{1} = zeros(length(stim_raw.label), length(stim_raw.time{1}));
 Fs                = stim_raw.fsample;
 time_raw          = stim_raw.time{1};
+
 % get passage onsets in samples
 evt          = ft_read_event(proc.dataset, 'type', 'Stimulus');
 psg_triggers = {evt(:).value};
@@ -191,15 +175,11 @@ for i_prd = 1:length(stim_raw.label) % for each predictor
         value = fillmissing(passage.value, 'constant', 0);
         tmin = time(1);
         tmax = time(end);
-%         tmin = time(1);
-%         tmax = time(end);
 
         % interpolate to sampling rate of the data
         new_times   = 0:(1/Fs):tmax; % MAKE SURE NO NANs!
-        %new_values_n  = interp1(time, value, new_times, 'nearest', 0);
         % interp1 for word onset/logfreq should be previous
         new_values  = interp1(time, value, new_times, 'previous', 0);
-        
         
         % check!!
         %plot(time, value);
@@ -216,22 +196,9 @@ for i_prd = 1:length(stim_raw.label) % for each predictor
     end   
 end
 
-% % transform variables based on "just_content" parameter
-% for i_cnt = 1:length(just_content)
-%    I_lex = find(strcmp('LexFunc', stim_raw.label));
-%    I     = find(strcmp(just_content(i_cnt), stim_raw.label));
-%    %stim_raw.trial{1}(I,:) = stim_raw.trial{1}(I,:) * stim_raw.trial{1}(I_lex,:);
-%    stim_raw.trial{1}(I,:) = stim_raw.trial{1}(I,:) .* stim_raw.trial{1}(I_lex,:);
-% end
-% 
-% % then transform variables based on 'just_onset' parameter
-% for i_cnt = 1:length(just_content)
-%     I_onset = find(strcmp('WordOnset100ms', stim_raw.label));
-%     I     = find(strcmp(just_content(i_cnt), stim_raw.label));
-%     stim_raw.trial{1}(I,:) = stim_raw.trial{1}(I,:) .* stim_raw.trial{1}(I_onset,:);
-% end 
 
-% test -- transform variables based on "just_content" parameter
+% transform variables based on "just_content" parameter
+% from word onset and LexFunc
 for i_cnt = 1:length(just_content)
    I_lex = find(strcmp('LexFunc', stim_raw.label));
    I_onset = find(strcmp('WordOnset100ms', stim_raw.label));
@@ -285,35 +252,35 @@ dat_cln.sampleinfo  = dat_cln.sampleinfo(find(keep_trials),:);
 
 cfg = [];
 cfg.lpfilter    = 'yes';
-%cfg.lpfreq      = 40;
 cfg.lpfreq      = 12;
 dat_evokd = ft_preprocessing(cfg, dat_cln);
-%dat_evokd = ft_preprocessing(cfg, dat_raw_ica);
 
 %% Delta 1-4 Hz 
+
 cfg = [];
 cfg.bpfilter  = 'yes';
 cfg.bpfreq    = [1 4];
 cfg.hilbert   = 'abs';
-dat_delta = ft_preprocessing(cfg,dat_cln);
+dat_delta = ft_preprocessing(cfg, dat_cln);
 
 %% Theta 5-8
+
 cfg = [];
 cfg.bpfilter  = 'yes';
 cfg.bpfreq    = [4 8];
 cfg.hilbert   = 'abs';
-dat_theta = ft_preprocessing(cfg,dat_cln);
+dat_theta = ft_preprocessing(cfg, dat_cln);
 
 %% Gamma 30-50
+
 cfg = [];
 cfg.bpfilter  = 'yes';
 cfg.bpfreq    = [30 50];
 cfg.hilbert   = 'abs';
 dat_gamma = ft_preprocessing(cfg, dat_cln);
 
-
 %% Crossvalidate to estimate lambda against the EVOKED data
-% [R,P,RMSE] = MTRFCROSSVAL(STIM,RESP,FS,MAP,TMIN,TMAX,LAMBDA)
+% [stats,t] = mTRFcrossval(stim,resp,fs,Dir,tmin,tmax,lambda,varargin)
 
 % downsample  for tractability
 train_Fs       = 64;
@@ -334,12 +301,7 @@ for i = 1:length(stim)
     resp{i}(isnan(resp{i})) = 0; 
 end
 
-%try_lambda = logspace(1, 5, 30); %base
-%try_lambda = logspace(-1,5,50);
-% try_lambda = logspace(-1,6,100);
-% try_lambda = logspace(0, 6, 20);
 % lambda range
-%k = linspace(0,20,11);
 k = linspace(-15,15,31);
 for i=1:length(k)
     try_lambda(i) = 2^k(i);
@@ -353,7 +315,6 @@ end
 % [~,I_RMSE]  = min(RMSE);
 
 % for new version mtrf toolbox script (2020)
-
 %%% CONTINUE FROM HERE: correlation values are complex (!!) maybe because
 %%% trying to take the SQRT of a negative when evaluating the fits?? see
 %%% mTRFevaluate ln. 102 etc...
@@ -378,7 +339,7 @@ set(gca, 'XScale', 'log')
 lambda = try_lambda(min(I_R, I_RMSE));
 
 %% Train Models
-% [model,t,c] = mTRFtrain(stim,resp,fs,map,tmin,tmax,lambda)
+% model = mTRFtrain(stim,resp,fs,Dir,tmin,tmax,lambda,varargin)
 % z-score predictors before fitting
 % train per trial, then average
 % lambda set via cross-validation above...
@@ -412,7 +373,6 @@ for d = 1:length(dsets)
         stim              = (stim - nanmean(stim)) ./ nanstd(stim); % scale
         stim(isnan(stim)) = 0; %  NaN -> zero
         
-        %resp              = dat_rs.trial{i}(:,:)';
         resp              = dat_cln_rs.trial{i}(:,:)';
         resp              = (resp - nanmean(resp)) ./ nanstd(resp); % scale
         
@@ -422,7 +382,6 @@ for d = 1:length(dsets)
 %         M(i,:,:,:)  = model;
 
         % new 2020 version script
-        %[model] = mTRFtrain(stim, resp, test_Fs, 1, -100, 800, lambda);
         [model] = mTRFtrain(stim, resp, test_Fs, 1, -1000, 2000, lambda);
         M(i,:,:,:)  = model.w;
     end
@@ -437,22 +396,18 @@ for d = 1:length(dsets)
     varname = ['M' dsets{d}(4:6)];
     eval([varname ' = M;']); % creates M_ev, M_de, M_th, M_ga...
 end
-%chan = find(strcmp('1', dat.label));
-%plot(t, squeeze(M(:,:,chan)), 'linewidth', 2); legend(pred.label, 'fontsize', 18, 'boxoff')
+
 
 %% Save result
 v = stim_cln_rs.label;
 e = dat_cln_rs.label;
 t = model.t; % 2020 version script
-save(['models_20200708/'  proc.subject '_20200708.mat'], 'M_ev', 'M_de', 'M_th', 'M_ga', 't', 'v', 'e');
-%save(['models/test.mat'], 'M_ev', 'M_de', 'M_th', 'M_ga', 't', 'v', 'c');
+save(['models/'  proc.subject '.mat'], 'M_ev', 'M_de', 'M_th', 'M_ga', 't', 'v', 'e');
+
 %% Figure
 figure;
 chan = find(strcmp('3', e));
-%plot(t, squeeze(M_ev(:,:,chan)), 'linewidth', 2); legend(v, 'fontsize', 18, 'boxoff')
-%plot(t, squeeze(M_ev(:,:,chan)), 'linewidth', 2); legend(v, 'fontsize', 18)
 y =squeeze(M_ev(:,:,chan));
 plot(t,y(7,:), 'linewidth', 2);legend(v{7}, 'fontsize', 18);
 xlim([-1000, 2000]);
 saveas(gcf, ['figs/' proc.subject '.png']);
-%saveas(gcf, ['figs/test.png']);
