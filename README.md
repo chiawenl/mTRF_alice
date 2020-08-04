@@ -50,8 +50,7 @@ end</code></pre>
 
 ### mtrf_plot_jrb.m  (version: 2020/07/30)
 <li> Release version </li>
-### mtrf_plot_jrb.m (version: 2020/05/31)
-<li> Plot results across subjects. Each line represents each channel. <\li>
+<li> Plot results across subjects. Each line represents each channel. </li>
 
 ## Files 
 <li> <a href="https://umich.box.com/s/tw206e6kid6pj6og5vgsrkhdroihvlmb" > Predictors</a> </li>
