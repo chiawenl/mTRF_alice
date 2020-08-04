@@ -8,6 +8,9 @@
 <li> <a href= "https://www.mathworks.com/matlabcentral/fileexchange/74260-mtrf-toolbox "> mTRF-Toolbox  </a>for building mTRF models </li>
    
 ## Scripts versions
+### do_alice_mtrf.m (version: 2020/07/30)
+<li> Release version </li>
+
 ### do_alice_mtrf.m (version: 2020/07/15)
 <li> Major changes: </li>
 <li> baseline correction </li>
@@ -45,8 +48,10 @@ end</code></pre>
 <li> Time lags: -1000~2000ms </li>
 <pre><code>[model] = mTRFtrain(stim, resp, test_Fs, 1, -1000, 2000, lambda);</code></pre>
 
+### mtrf_plot_jrb.m  (version: 2020/07/30)
+<li> Release version </li>
 ### mtrf_plot_jrb.m (version: 2020/05/31)
-Plot results across subjects. Each line represents each channel. 
+<li> Plot results across subjects. Each line represents each channel. <\li>
 
 ## Files 
 <li> <a href="https://umich.box.com/s/tw206e6kid6pj6og5vgsrkhdroihvlmb" > Predictors</a> </li>
